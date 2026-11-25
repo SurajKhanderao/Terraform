@@ -251,7 +251,9 @@ resource "aws_db_instance" "test_db_instance" {
 
   db_name  = "test_db"
   username = "suraj"
-  password = "Suraj12345"
+  #password = Suraj12345"
+  manage_master_user_password = true
+
   port     = "3306"
 
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
@@ -266,6 +268,38 @@ resource "aws_db_instance" "test_db_instance" {
     Name = "test_db"
   }
 }
+
+#For Creating Replica you need to enable Automated Backup for both
+# RDS Read Replica
+
+resource "aws_db_instance" "test_db_replica" {
+
+  identifier = "test-instance-replica"
+
+  # Source RDS instance
+  replicate_source_db = aws_db_instance.test_db_instance.identifier
+
+  # Instance configuration
+  instance_class = "db.t4g.micro"
+
+  # Network configuration
+  vpc_security_group_ids = [
+    aws_security_group.rds_sg.id
+  ]
+
+  publicly_accessible = false
+
+  # Availability
+  multi_az = false
+
+  # Deletion configuration
+  skip_final_snapshot = true
+
+  tags = {
+    Name = "test_db_replica"
+  }
+}
+
 
 
 
